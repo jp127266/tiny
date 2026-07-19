@@ -1,0 +1,32 @@
+services:
+  squid:
+    build: ./squid
+    image: squid-sslbump:local
+    container_name: squid-forward-proxy
+    restart: unless-stopped
+    ports:
+      # Forward (web) proxy port, exposed on all interfaces so other machines can use it.
+      - "7080:7080"
+    volumes:
+      - ./squid/squid.conf:/etc/squid/squid.conf:ro
+      - ./squid/nobump.acl:/etc/squid/nobump.acl:ro
+      - ./squid/ssl:/etc/squid/ssl:ro
+      - squid-cache:/var/cache/squid
+      - squid-ssl-db:/var/lib/squid
+    ulimits:
+      # Plenty of file descriptors for many concurrent connections.
+      nofile:
+        soft: 65536
+        hard: 65536
+    healthcheck:
+      # Minimal image (no curl/wget); probe the port via bash... but alpine has no bash.
+      # Use squidclient (shipped with the alpine squid package).
+      test: ["CMD-SHELL", "squidclient -h 127.0.0.1 -p 7080 mgr:info >/dev/null 2>&1 || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+volumes:
+  squid-cache:
+  squid-ssl-db:

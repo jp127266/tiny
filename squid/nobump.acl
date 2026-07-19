@@ -1,0 +1,17 @@
+# Domains to SPLICE (pass through without decryption) instead of bumping.
+# Use for certificate-pinned hosts that fail when SSL-bumped.
+# One domain per line; a leading dot matches subdomains.
+#
+# Firefox pins certificates for its own Mozilla service connections, so bumping
+# them causes errors — splice them through untouched.
+.mozilla.org
+.mozilla.com
+.mozilla.net
+.firefox.com
+# Google: session-cookie binding (RotateCookies) breaks under SSL-bump, logging
+# you out on every relaunch. Splice so TLS goes end-to-end. No cache loss — this
+# traffic is no-store anyway. Static assets on gstatic.com/ytimg.com stay bumped.
+.google.com
+.youtube.com
+.googleusercontent.com
+# Add your own cert-pinned sites / apps below, e.g.:

@@ -1,0 +1,10 @@
+# Local CA for SSL-bump — SECRET. ca.key can decrypt all bumped traffic and mint
+# trusted certs for any site. Never commit it. Generate ca.crt/ca.key locally per
+# README before first run. The directory is kept (bind-mounted by docker-compose).
+squid/ssl/*
+!squid/ssl/.gitkeep
+
+# Runtime / local artifacts
+*.log
+.env
+.DS_Store
