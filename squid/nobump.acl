@@ -14,4 +14,80 @@
 .google.com
 .youtube.com
 .googleusercontent.com
+
+# ===========================================================================
+# Anti-bot / cert-pinned domains. Splicing restores the client's genuine TLS
+# handshake end-to-end, so the origin sees a real browser JA3/JA4 + HTTP/2
+# instead of Squid's OpenSSL fingerprint over HTTP/1.1 (the mismatch that
+# bot-detection systems flag).
+#
+# Cost of splicing: that traffic becomes opaque (TCP_TUNNEL) and UNCACHEABLE.
+# Keep this list tight — every entry added is cache value given up. Most of
+# these serve no-store dynamic content anyway, so little is actually lost.
+# ===========================================================================
+
+# --- CAPTCHA / bot-detection infrastructure --------------------------------
+# These actively fingerprint TLS; bumping them makes challenges unsolvable
+# (endless CAPTCHA loops). Splice so the widget sees the real browser.
+.hcaptcha.com
+.recaptcha.net
+.arkoselabs.com
+.funcaptcha.com
+.datadome.co
+.perimeterx.net
+.px-cloud.net
+challenges.cloudflare.com
+
+# --- Identity / SSO / MFA ---------------------------------------------------
+# Session tokens are bound to the TLS channel; bumping logs you out or breaks
+# the MFA handshake. (M365 is the classic case noted in CLAUDE.md.)
+.microsoftonline.com
+.office.com
+.office365.com
+.sharepoint.com
+.live.com
+.okta.com
+.auth0.com
+.duosecurity.com
+.apple.com
+.icloud.com
+
+# --- Financial --------------------------------------------------------------
+# Cert-pinned, and you almost certainly do not want to MITM your own banking:
+# a bumped session is decryptable by whoever holds ca.key.
+.paypal.com
+.stripe.com
+
+# Korean banking/fintech — included on the assumption this is your region.
+# Delete freely if not relevant.
+.kbstar.com
+.shinhan.com
+.wooribank.com
+.hanabank.com
+.nonghyup.com
+.kakaobank.com
+.tossbank.com
+.toss.im
+.kftc.or.kr
+
+# --- Messaging (certificate pinning in native apps) -------------------------
+.whatsapp.com
+.whatsapp.net
+.signal.org
+.slack.com
+.discord.com
+.telegram.org
+.kakao.com
+
+# --- DRM / streaming --------------------------------------------------------
+# Widevine/FairPlay license exchange fails under interception. Video segment
+# CDNs are left bumped where possible so large objects still cache.
+.netflix.com
+.spotify.com
+.disneyplus.com
+
+# --- Aggressive bot management (ticketing / retail) -------------------------
+.ticketmaster.com
+.nike.com
+
 # Add your own cert-pinned sites / apps below, e.g.:

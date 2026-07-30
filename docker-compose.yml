@@ -6,7 +6,16 @@ services:
     restart: unless-stopped
     ports:
       # Forward (web) proxy port, exposed on all interfaces so other machines can use it.
-      - "7080:7080"
+      # Host 7080 is taken by another container, so publish on 7090 (still 7080 inside).
+      - "7090:7080"
+    # NAT hairpin workaround. kapp.upthere.ai resolves to this site's PUBLIC IP
+    # (63.135.181.192), but the service is actually hosted inside this LAN. The
+    # router does not hairpin — connecting to our own public IP from inside gets
+    # "connection refused" — so point Squid straight at the internal address.
+    # joon.upthere.ai is already handled this way in DNS; this matches it.
+    # The durable fix is a split-horizon DNS record; see README.
+    extra_hosts:
+      - "kapp.upthere.ai:192.168.1.93"
     volumes:
       - ./squid/squid.conf:/etc/squid/squid.conf:ro
       - ./squid/nobump.acl:/etc/squid/nobump.acl:ro

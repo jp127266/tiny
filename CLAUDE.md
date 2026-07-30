@@ -52,7 +52,10 @@ its domain here and restart. This is the single most common change request.
 `squid.pid`** — without that, `docker compose restart` fails with "Squid is already running".
 
 Caching has two independent tiers: a hard **4 GB disk cache** (`cache_dir aufs … 4096`, a firm
-requirement — do not raise it) and a separate **8 GB in-memory** hot cache (`cache_mem`).
+requirement — do not raise it) and a separate **4 GB in-memory** hot cache (`cache_mem`).
+`cache_mem` was reduced from 8 GB to 4 GB: this host has 15 GB total RAM shared with other
+containers, Squid grows into the limit and never releases it, and pushing the box into swap
+would cost far more latency than the extra memory cache saves.
 
 Access is restricted to localhost + private LAN ranges via `http_access`; widening to all
 clients means replacing those rules with `http_access allow all` (open proxy).
