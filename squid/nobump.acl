@@ -14,6 +14,10 @@
 .google.com
 .youtube.com
 .googleusercontent.com
+# YouTube video CDN and Google API endpoints. Spliced alongside youtube.com so
+# playback/API calls see the real browser TLS. Gives up caching of video segments.
+.googlevideo.com
+.googleapis.com
 
 # ===========================================================================
 # Anti-bot / cert-pinned domains. Splicing restores the client's genuine TLS
@@ -36,7 +40,7 @@
 .datadome.co
 .perimeterx.net
 .px-cloud.net
-challenges.cloudflare.com
+.challenges.cloudflare.com
 
 # --- Identity / SSO / MFA ---------------------------------------------------
 # Session tokens are bound to the TLS channel; bumping logs you out or breaks
@@ -91,3 +95,4 @@ challenges.cloudflare.com
 .nike.com
 
 # Add your own cert-pinned sites / apps below, e.g.:
+.1337x.to

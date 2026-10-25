@@ -6,22 +6,24 @@ services:
     restart: unless-stopped
     ports:
       # Forward (web) proxy port, exposed on all interfaces so other machines can use it.
-      # Host 7080 is taken by another container, so publish on 7090 (still 7080 inside).
-      - "7090:7080"
-    # NAT hairpin workaround. kapp.upthere.ai resolves to this site's PUBLIC IP
-    # (63.135.181.192), but the service is actually hosted inside this LAN. The
-    # router does not hairpin — connecting to our own public IP from inside gets
-    # "connection refused" — so point Squid straight at the internal address.
-    # joon.upthere.ai is already handled this way in DNS; this matches it.
-    # The durable fix is a split-horizon DNS record; see README.
-    extra_hosts:
-      - "kapp.upthere.ai:192.168.1.93"
+      - "7080:7080"
     volumes:
       - ./squid/squid.conf:/etc/squid/squid.conf:ro
       - ./squid/nobump.acl:/etc/squid/nobump.acl:ro
       - ./squid/ssl:/etc/squid/ssl:ro
       - squid-cache:/var/cache/squid
       - squid-ssl-db:/var/lib/squid
+    sysctls:
+      # There is no IPv6 egress here (host has no global v6 address, this compose
+      # network is EnableIPv6=false), but the container still gets loopback ::1 —
+      # enough for Squid's startup probe to succeed and turn IPv6 support ON. It
+      # then resolves AAAA records and picks unreachable v6 origin addresses.
+      # Every such attempt fails; on a SPLICED host it fails as a bare TCP close
+      # mid-TLS, which the browser reports as PR_END_OF_FILE_ERROR rather than a
+      # readable proxy error. Denying IPv6 outright makes Squid's probe fail, so
+      # it never queries AAAA. NOTE: this is set at container creation — applying
+      # it needs `docker compose up -d`, not `restart`.
+      - net.ipv6.conf.all.disable_ipv6=1
     ulimits:
       # Plenty of file descriptors for many concurrent connections.
       nofile:
